@@ -1,6 +1,6 @@
 # 🏗️ Homelab & Infraestructura On-Premise: Proxmox VE, Redes, Docker, IaC y SecOps
 
-Este repositorio documenta el diseño, armado desde cero y administración de mi servidor en casa (Homelab). El objetivo del proyecto es llevar a la práctica real los conceptos de administración de sistemas Linux, redes, contenedores, automatización (Infraestructura como Código) y seguridad defensiva, operando bajo estándares de producción.
+Este repositorio documenta el diseño, armado desde cero y administración de mi servidor en casa (Homelab). El objetivo del proyecto es llevar a la práctica real los conceptos de administración de sistemas Linux, redes, contenedores, automatización (Infraestructura como Código) y seguridad defensiva, operando bajo estándares de producción. Asi mismo, si alguien quiere replicar una arquitectura parecida o tiene alguna sugerencia, es mas que bienvenida a realizarla!
 
 En este mismo repositorio estan tanto las **guías técnicas paso a paso** (con el porqué de cada configuración y comandos de auditoría) como los **archivos de código desplegables** (`docker-compose.yml`, playbooks de Ansible y plantillas de aprovisionamiento) que corren en el servidor.
 
