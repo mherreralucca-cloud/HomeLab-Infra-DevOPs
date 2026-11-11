@@ -39,7 +39,6 @@ Configuré la placa de red virtual del contenedor (`net0`) con parámetros está
 
 * **Bridge `vmbr0`:** Funciona como un switch virtual en Capa 2 que une la interfaz del contenedor con la placa Ethernet física del servidor enchufada al router principal.
 * **IPv4 Estática (`192.168.1.101/24`):** A diferencia de un celular o una notebook que pueden pedir IP por DHCP, un servidor de infraestructura tiene que tener IP fija.
-  * *Qué indica el `/24`:* En IPv4 las direcciones tienen 32 bits separados en 4 octetos. El prefijo `/24` equivale a la máscara `255.255.255.0` (los primeros 24 bits en `1` y los últimos 8 en `0`). Esto define que `192.168.1.x` (rango privado RFC 1918) es la parte de mi red local y me deja del `.1` al `.254` para asignar a los equipos de la casa.
 * **Default Gateway (`192.168.1.1`):** Es la IP interna del módem-router de Movistar. Cuando el contenedor tiene que salir a Internet (por ejemplo, para bajar paquetes con `apt`), le manda el tráfico a esta puerta de enlace, que se encarga de hacer **NAT (*Network Address Translation*)** para salir por mi única IP pública de fibra.
 * **DNS (`1.1.1.1`):** Resuelve los nombres de dominio (como los repositorios de Debian o Ubiquiti) a direcciones IP de forma provisoria hasta poner en marcha mi propio Pi-hole + Unbound.
 
