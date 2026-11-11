@@ -68,3 +68,11 @@ A medida que se completan las etapas del Roadmap, el repositorio se organiza sep
 - [ ] **Etapa 4:** Despliegue de stack de monitoreo y alertas de estado.
 - [ ] **Etapa 5:** Aprovisionamiento automatizado de laboratorio con Cloud-Init, Terraform y Ansible.
 - [ ] **Etapa 6:** Despliegue de clúster K3s y auditoría de seguridad con Wazuh.
+
+---
+## 🤝 Contacto
+
+Siéntete libre de utilizar estos apuntes y Cheat Sheets como material de consulta rápida para tu día a día en la terminal.
+
+🔗 **Conectemos en LinkedIn:** https://www.linkedin.com/in/lucca-martinenghi-it/
+
