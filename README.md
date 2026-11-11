@@ -76,3 +76,9 @@ Siéntete libre de utilizar estos apuntes y Cheat Sheets como material de consul
 
 🔗 **Conectemos en LinkedIn:** https://www.linkedin.com/in/lucca-martinenghi-it/
 
+
+>
+> "Talk is cheap. Show me the code." — Linus Torvalds
+>
+<img width="220" height="220" alt="tux" src="https://github.com/user-attachments/assets/800b49d8-1684-4aa4-a4ac-a9525755afa4" />
+
