@@ -1,6 +1,6 @@
-# Despliegue de UniFi Network Server en Contenedor LXC y Ajuste de Radiofrecuencia (UAP-AC-LR)
+# Despliegue de UniFi Network Server en Contenedor LXC y Ajuste de frecuencia (UAP-AC-LR)
 
-En esta etapa del proyecto necesitaba poner y administrar un punto de acceso **Ubiquiti UniFi UAP-AC-LR** para cubrir el Wi-Fi de mi casa. Como los equipos de la línea UniFi no tienen una interfaz web propia para configurarlos desde una IP, requieren un controlador central (**UniFi Network Application**) que los adopte, les puse la configuración y recolecte las métricas de red.
+En esta etapa del proyecto necesitaba poner y administrar un punto de acceso **Ubiquiti UniFi UAP-AC-LR5** para cubrir el Wi-Fi de mi casa. Como los equipos de la línea UniFi no tienen una interfaz web propia para configurarlos desde una IP, requieren un controlador central (**UniFi Network Application**) que los adopte, les puse la configuración y recolecte las métricas de red.
 
 En lugar de instalar ese controlador en mi PC personal (que se apaga y deja sin monitoreo ni portal a la red), decidí alojarlo directamente en mi servidor **Proxmox VE** para que corra las 24 horas consumiendo el mínimo posible de recursos.
 
