@@ -222,3 +222,19 @@ Al iniciar sesión por SSH con contraseña, tu clave viaja (dentro del túnel ci
 * **Llave Privada (`id_ed25519`):** Es secreta y nunca sale de tu PC de trabajo (funciona como el molde físico de la llave).
 * **Llave Pública (`id_ed25519.pub`):** Actúa como el "cerrojo" que se copia al servidor dentro de `~/.ssh/authorized_keys`. Aunque alguien lea tu llave pública, es matemáticamente inviable deducir la privada a partir de ella.
 * **Cómo ocurre la autenticación:** Al correr `ssh lucca@192.168.1.102`, el servidor usa tu llave pública para enviarle un desafío matemático a tu PC. Tu PC lo resuelve firmándolo con la llave privada sin exponerla jamás por la red; si la firma cierra, te deja entrar. Elegí el algoritmo de curva elíptica **`Ed25519`** porque genera llaves cortas, muy rápidas y mucho más seguras frente a ataques modernos que las viejas RSA de 2048 bits o el algoritmo roto DSA (`ssh-dss`).
+
+---
+
+## Hoja de Trucos (Cheat Sheet) — VM Base, Docker y Portainer
+
+| Categoría | Comando / Ruta | Qué hace y para qué sirve |
+| :--- | :--- | :--- |
+| **Agente Proxmox** | `systemctl status qemu-guest-agent` | Verifica que el demonio que reporta la IP a Proxmox y congela el disco (`fsfreeze`) en los backups esté activo. |
+| **Red Debian** | `/etc/network/interfaces` | Archivo donde se define la IP estática `192.168.1.102/24` sobre la placa VirtIO `ens18`. |
+| **Seguridad SSH** | `sudo sshd -t && sudo systemctl restart sshd` | Valida que `/etc/ssh/sshd_config` no tenga errores de sintaxis antes de reiniciar el servicio SSH. |
+| **Firewall Host** | `sudo ufw status numbered` | Muestra las reglas activas del firewall local numeradas por orden de evaluación. |
+| **Criptografía APT** | `/etc/apt/keyrings/docker.asc` | Llave pública GPG oficial usada por `apt` para verificar la firma digital de los paquetes de Docker. |
+| **Config Docker** | `/etc/docker/daemon.json` | Archivo de configuración del demonio `dockerd` (usado para limitar el tamaño y rotación de logs JSON). |
+| **Socket Docker** | `/var/run/docker.sock` | Canal de comunicación (socket Unix) por el cual la CLI y Portainer le dan órdenes al demonio `dockerd`. |
+| **Capas y Datos** | `/var/lib/docker/overlay2/` y `/var/lib/docker/volumes/` | Directorios donde Docker guarda las capas de las imágenes (`overlay2`) y los volúmenes persistentes (`portainer_data`). |
+| **Gestión Contenedores** | `docker ps` / `docker ps -a` | Lista los contenedores activos (`ps`) o absolutamente todos incluyendo los detenidos (`ps -a`). |
