@@ -27,7 +27,7 @@ VM 200: docker-prod (Debian 12 — IP 192.168.1.102/24)
 
 ---
 
-## Implementación Práctica Paso a Paso
+## Implementación Práctica
 
 ### Paso 1: Registro del Repositorio Oficial de Docker y Llave GPG
 
