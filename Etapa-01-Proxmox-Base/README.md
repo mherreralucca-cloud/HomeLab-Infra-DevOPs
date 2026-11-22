@@ -46,11 +46,9 @@ Antes de instalar el hipervisor, se entró al modo avanzado de la BIOS (`Supr` +
 
 1. **Ingreso a la interfaz web:** Desde el navegador de otra PC en la red se entró a `https://IP-PROXMOX:8006` usando el usuario `root` (autenticación PAM).
 
-[image]
 
 2. **Cambio de repositorios APT:** Como Proxmox trae por defecto los repositorios pagos (`enterprise.proxmox.com`), se deshabilitaron desde `pve` → `Updates` → `Repositories` (tanto el de PVE como el de Ceph) y se agregó el repositorio **`No-Subscription`** para poder bajar actualizaciones y parches sin errores.
 
-[image]
 
 3. **Actualización y chequeo por consola (`>_ Shell`):**
 ```bash
@@ -101,11 +99,6 @@ systemctl enable zfs-import@HDD\x2draidz1.service
 ```bash
 zfs create HDD-raidz1/backups
 ```
-
-[image]
-[image]
-[image]
-
 ---
 
 ## 6. Fase 5: Copias de Seguridad Automatizadas y Política de Retención (vzdump)
@@ -153,7 +146,6 @@ pvesm prune-backups hdd-backups --dry-run 1
 
 ## 7. Cheatsheet, Backups y Restauración de ProxmoxVE
 
-[image]
 
 | Comando / Ruta en Consola | Para qué sirve |
 | :--- | :--- |
