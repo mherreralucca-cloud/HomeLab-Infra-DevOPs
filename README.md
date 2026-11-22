@@ -62,8 +62,8 @@ A medida que se completan las etapas del Roadmap, el repositorio se organiza sep
 - [x] **Etapa 1:** Instalación de Proxmox VE en NVMe (`local-lvm`), alta de `LABS-SSD` y creación de pool ZFS `HDD-raidz1`.
 - [x] **Etapa 1:** Creación de contenedor LXC Debian 12, instalación de UniFi Network Server y adopción de AP UAP-AC-LR.
 - [x] **Etapa 1:** Programación de backups nocturnos (`vzdump`) con rotación GFS (`prune-backups`) y copia base protegida.
-- [ ] **Etapa 2:** Creación y hardening de VM Debian (`docker-prod`) con Docker Engine y Portainer.
-- [ ] **Etapa 2:** Despliegue de stack `Pi-hole + Unbound` desde este repositorio mediante GitOps.
+- [x] **Etapa 2:** Creación y hardening de VM Debian (`docker-prod`) con Docker Engine y Portainer.
+- [x] **Etapa 2:** Despliegue de stack `Pi-hole + Unbound` desde este repositorio mediante GitOps.
 - [ ] **Etapa 3:** Configuración de dominio propio y túnel cifrado saliente con Cloudflare Zero Trust.
 - [ ] **Etapa 4:** Despliegue de stack de monitoreo y alertas de estado.
 - [ ] **Etapa 5:** Aprovisionamiento automatizado de laboratorio con Cloud-Init, Terraform y Ansible.
