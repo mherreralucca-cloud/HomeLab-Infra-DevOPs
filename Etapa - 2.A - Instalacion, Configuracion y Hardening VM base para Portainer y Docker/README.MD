@@ -1,6 +1,6 @@
 # Etapa 2.A — Aprovisionamiento y Hardening de la VM Base (`docker-prod`)
 
-En esta primera parte de la Etapa 2 armé desde cero la máquina virtual que va a alojar todo el motor de contenedores del servidor (**VM 200 — `docker-prod`**) corriendo **Debian 12** sin entorno gráfico sobre Proxmox VE. La idea acá es dejar una base limpia, reproducible y segura antes de instalar Docker y Portainer: configurar bien el hardware virtualizado, asignar IP estática, activar el agente de comunicación con Proxmox, cerrar el acceso SSH para usar únicamente llaves Ed25519, levantar el firewall `ufw` en modo *Default Deny* y sacar un snapshot de resguardo.
+En esta primera parte de la Etapa 2 armé desde cero la máquina virtual que va a alojar todo el motor de contenedores del servidor (**VM 200 — `docker-prod`**) corriendo **Debian 13** sin entorno gráfico sobre Proxmox VE. La idea acá es dejar una base limpia, reproducible y segura antes de instalar Docker y Portainer: configurar bien el hardware virtualizado, asignar IP estática, activar el agente de comunicación con Proxmox, cerrar el acceso SSH para usar únicamente llaves Ed25519, levantar el firewall `ufw` en modo *Default Deny* y sacar un snapshot de resguardo.
 
 > **Nota de lectura:** Arranco directo con la arquitectura y el paso a paso de cómo lo implementé. Si querés entender a fondo el porqué de cada decisión (KVM vs. QEMU, paravirtualización `VirtIO`, funcionamiento de `LVM-thin` con `Discard`, congelamiento de disco con `fsfreeze` y cómo opera la criptografía `Ed25519`), te dejé todo el **Marco Teórico desarrollado al final del documento**.
 
@@ -13,7 +13,7 @@ Así quedó planteada la máquina virtual dentro del nodo Proxmox y la red local
 ```text
 Nodo Proxmox VE (pve — Intel Core i3-12100)
 ├── Bridge de red: vmbr0 (LAN 192.168.1.0/24 | Gateway: 192.168.1.1)
-└── VM 200: docker-prod (Debian 12 minimal — sin GUI)
+└── VM 200: docker-prod (Debian 13 minimal — sin GUI)
     ├── CPU / RAM: 2-4 vCPUs (Type: host) | 6144 MiB RAM fija
     ├── Almacenamiento: 40 GiB en local-lvm (M.2 NVMe | VirtIO SCSI single + Discard)
     ├── Interfaz de red: ens18 (VirtIO) → IP estática 192.168.1.102/24
@@ -29,12 +29,12 @@ Nodo Proxmox VE (pve — Intel Core i3-12100)
 ### Paso 1: Creación de la VM 200 (`docker-prod`) en Proxmox VE
 
 1. **Descarga de la ISO mínima de Debian:**
-   Desde la interfaz web de Proxmox entré al almacenamiento `local` (o `LABS-SSD`) → **ISO Images** → **Download from URL** y descargué la imagen oficial *netinst* de Debian 12 (`debian-12.9.0-amd64-netinst.iso`) para hacer una instalación limpia por red.
+   Desde la interfaz web de Proxmox entré al almacenamiento `local` → **ISO Images** → **Download from URL** y descargué la imagen oficial *netinst* de Debian 13 (`debian-13.9.0-amd64-netinst.iso`) para hacer una instalación limpia por red.
 
 2. **Configuración del hardware virtual (`Create VM`):**
    Armé la máquina virtual cuidando de usar controladores paravirtualizados en lugar de hardware emulado estándar:
    * **General:** `VM ID: 200`, `Name: docker-prod` y la casilla **Start at boot** activada (así arranca sola apenas vuelva la luz y levante el servidor físico).
-   * **OS:** Seleccioné la ISO de Debian 12 recién descargada.
+   * **OS:** Seleccioné la ISO de Debian 13 recién descargada.
    * **System:** Controladora **VirtIO SCSI single** y casilla **Qemu Agent** tildada.
    * **Disks:** Bus `SCSI 0`, almacenamiento **`local-lvm`** (NVMe), tamaño `40 GiB` y casilla **Discard** activada para habilitar TRIM sobre el *thin pool*.
    * **CPU:** `2 Cores` (o `4 Cores`) con **Type: `host`**, para exponerle a la VM el conjunto completo de instrucciones nativas del Intel Core i3-12100 sin traducción intermedia.
@@ -44,7 +44,7 @@ Nodo Proxmox VE (pve — Intel Core i3-12100)
 3. **Instalación del sistema operativo (Consola de la VM):**
    * Configuré región (`Argentina`), contraseña de `root` y mi usuario estándar sin privilegios (`lucca`).
    * **Particionado:** Elegí *Guiado - utilizar todo el disco* en una única partición `ext4`. No activé LVM adentro de Debian porque el disco virtual ya corre sobre el volumen `LVM-thin` de Proxmox y sumar una segunda capa de LVM no aporta nada en este caso.
-   * **Selección de programas (`tasksel`):** Destildé el entorno de escritorio (`Debian desktop environment` / `GNOME`) para no gastar RAM ni CPU en interfaz gráfica. Dejé marcados únicamente **`SSH server`** y **`standard system utilities`**.
+   * **Selección de programas (`tasksel`):** Destildé el entorno de escritorio (`Debian desktop environment` / `GNOME`) para no gastar RAM ni CPU en interfaz gráfica. Dejé únicamente **`SSH server`** y **`standard system utilities`**.
 
 ---
 
@@ -79,14 +79,14 @@ systemctl status qemu-guest-agent
 
 ### Paso 3: Configuración de IP Estática (`192.168.1.102/24`)
 
-Como esta VM va a alojar el servidor DNS de la casa (Pi-hole + Unbound), no puede depender de una IP dinámica por DHCP que cambie después de un reinicio. Antes de tocar nada hice un respaldo de `/etc/network/interfaces` y lo edité con `vim`:
+Como esta VM va a alojar el servidor DNS de la casa (Pi-hole + Unbound), no puede depender de una IP dinámica por DHCP que cambie después de un reinicio. Antes de tocar nada hice un respaldo de `/etc/network/interfaces` y lo edité:
 
 ```bash
 cp /etc/network/interfaces /etc/network/interfaces.bak
 vim /etc/network/interfaces
 ```
 
-Dejé configurada la interfaz paravirtualizada `ens18` con la IP fija `192.168.1.102/24` apuntando al módem de Movistar (`192.168.1.1`):
+Dejé configurada la interfaz `ens18` con la IP fija `192.168.1.102/24` apuntando al módem de Movistar (`192.168.1.1`):
 
 ```text
 source /etc/network/interfaces.d/*
@@ -110,10 +110,10 @@ ip -c a
 
 ---
 
-### Paso 4: Inyección de Llave SSH (`Ed25519`) y Hardening de `sshd`
+### Paso 4: Llave SSH (`Ed25519`) y Hardening de `sshd`
 
-1. **Generación y copia de la llave desde mi PC de trabajo (Arch Linux):**
-   Desde la terminal local generé un par de llaves criptográficas de curva elíptica `Ed25519` y envié la llave pública hacia la VM (siempre ejecutando sin `sudo` para usar la llave del usuario local y no la de `/root/`):
+1. **Generación y copia de la llave desde mi PC de trabajo (Arch Linux/Omarchy):**
+   Desde la terminal local generé un par de llaves criptográficas `Ed25519` y envié la llave pública hacia la VM (siempre sin `sudo` para usar la llave del usuario local y no la de `/root/`):
 
    ```bash
    ssh-keygen -t ed25519
@@ -121,19 +121,20 @@ ip -c a
    ```
 
 2. **Verificación y endurecimiento del servidor SSH (`sshd_config`):**
-   Primero comprobé que `ssh lucca@192.168.1.102` entrara directo sin pedirme contraseña. Recién con eso confirmado respaldé y edité la configuración del demonio SSH dentro de la VM:
+   Primero comprobé que `ssh lucca@192.168.1.102` entrara directo sin pedirme contraseña. Recién con eso confirmado respaldé y edité la configuración de SSH dentro de la VM:
 
    ```bash
    sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
    sudo vim /etc/ssh/sshd_config
    ```
 
-   Configuré estas tres directivas clave:
+   Configuré estas tres cosas:
 
    ```text
    PermitRootLogin no
    PasswordAuthentication no
    PubkeyAuthentication yes
+   MaxAuthTries 3 (opcional)
    ```
 
    Antes de reiniciar el servicio, validé la sintaxis con `sshd -t` para evitar un bloqueo de acceso (*SSH lockout*):
