@@ -13,7 +13,7 @@ Para evitar cuellos de botella de entrada/salida (I/O) y separar los servicios c
 * **CPU:** Intel Core i3-12100 (4 Cores / 8 Threads, con gráficos integrados Intel UHD 730).
 * **Motherboard y Fuente:** MSI H610M + Fuente 600W.
 * **Memoria RAM:** 32 GB DDR4 (2666 MHz).
-* **Red:** Gigabit Ethernet en puente (`vmbr0`) + Punto de Acceso corporativo **Ubiquiti UniFi UAP-AC-LR**.
+* **Red:** Gigabit Ethernet en puente (`vmbr0`) + Router TP-Link AC750 + Punto de Acceso **Ubiquiti UAP-AC**.
 
 | Nivel | Unidad Física | Formato / Tipo en Proxmox | Uso Asignado en el Servidor |
 | :--- | :--- | :--- | :--- |
