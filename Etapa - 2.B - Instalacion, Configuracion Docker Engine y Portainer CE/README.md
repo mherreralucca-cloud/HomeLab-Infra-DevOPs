@@ -123,7 +123,7 @@ Para tener control visual de los contenedores y desplegar futuros stacks leyendo
      portainer/portainer-ce:latest
    ```
 
-   Desglose de los parámetros utilizados:
+    Que hace cada parametro:
    * `-d` (*Detached*): corre el contenedor en segundo plano y devuelve el control de la terminal.
    * `-p 9443:9443`: publica el puerto TCP `9443` de la VM (`192.168.1.102`) apuntando al puerto `9443` interno de Portainer (interfaz web HTTPS). Omití a propósito el puerto `8000` porque solo se utiliza para túneles de agentes Edge remotos que acá no necesito, reduciendo la superficie expuesta.
    * `--name portainer`: asigna un nombre fijo y fácil de identificar al contenedor.
