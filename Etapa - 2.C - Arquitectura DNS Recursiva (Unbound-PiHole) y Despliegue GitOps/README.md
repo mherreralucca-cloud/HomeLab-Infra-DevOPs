@@ -10,8 +10,6 @@ En esta tercera parte de la Etapa 2 implementé la infraestructura DNS de mi red
 
 En lugar de colgar los servicios sobre el puente por defecto `docker0` (`172.17.0.0/16`) —donde las IPs internas cambian según el orden de arranque—, declaré una red bridge dedicada (**`dns_net`**) con gestión **IPAM** en la subred **`172.23.0.0/24`**. Esto crea un switch virtual independiente en el kernel (`br-<id>` con gateway `172.23.0.1/24`) con IPs internas estáticas: **`172.23.0.2`** para Unbound y **`172.23.0.3`** para Pi-hole.
 
-Un punto central de esta arquitectura es que **Unbound no tiene bloque `ports:` en el Compose**. No expone ningún socket hacia la VM `192.168.1.102` ni hacia la LAN: queda invisible para cualquier dispositivo de la casa y únicamente recibe tráfico desde Pi-hole por el enlace privado `172.23.0.3 → 172.23.0.2:5335`.
-
 ```text
 Repositorio GitHub (refs/heads/main)
 └── docker-stacks/pihole-unbound/docker-compose.yml ──► Consumido por Portainer CE (:9443)
@@ -33,6 +31,7 @@ VM 200: docker-prod (IP 192.168.1.102/24 — Firewall ufw LAN 192.168.1.0/24)
              └──► Salida directa a Internet (Resolución recursiva + DNSSEC):
                   Root Servers (".") ──► TLD (.com / .ar) ──► Servidor Autoritativo
 ```
+Un punto central de esta arquitectura es que **Unbound no tiene bloque `ports:` en el Compose**. No expone ningún socket hacia la VM `192.168.1.102` ni hacia la LAN: queda invisible para cualquier dispositivo de la casa y únicamente recibe tráfico desde Pi-hole por el enlace privado `172.23.0.3 → 172.23.0.2:5335`.
 
 ```text
 [PC / Celular en LAN (192.168.1.x)]
