@@ -211,16 +211,7 @@ networks:
 
 ---
 
-## Hardening Aplicado y Validación Criptográfica
-
-### Controles Defensivos Implementados
-
-* **Mitigación de *DNS Rebinding* (`private-address`):** declarar los rangos RFC 1918 (`192.168.0.0/16`, `172.16.0.0/12`, `10.0.0.0/8`) y `169.254.0.0/16` en `unbound.conf` obliga a descartar cualquier respuesta pública externa que intente resolver hacia una IP privada de mi LAN.
-* **Cierre de *Open Resolver* y *Fingerprinting*:** las ACLs (`access-control`) aceptan únicamente consultas desde `127.0.0.1/32` (healthcheck), redes Docker (`172.16.0.0/12`) y mi LAN (`192.168.1.0/24`), rechazando el resto (`0.0.0.0/0 refuse`). Además, `hide-identity: yes` y `hide-version: yes` ocultan la versión del motor, y `harden-glue: yes` + `harden-dnssec-stripped: yes` bloquean inyecciones de registros fuera de zona y degradaciones de firmas.
-* **Montaje único en `:ro` preservando `var/root.key`:** monto únicamente `/opt/stacks/dns-stack/unbound/unbound.conf` como solo lectura (`:ro`) en vez de bloquear toda la carpeta `/opt/unbound/etc/unbound/`. Así el archivo de configuración queda inmutable desde adentro del contenedor, mientras la subcarpeta interna `var/` sigue escribible para que el script de inicio genere y actualice el ancla criptográfica `root.key`.
-* **Mínimo privilegio en el kernel:** descarté `privileged: true` y le asigné a Pi-hole únicamente `cap_add: [NET_ADMIN]` para operar los sockets DNS. En ambos contenedores activé `security_opt: [no-new-privileges:true]` para impedir escaladas mediante binarios `SUID`/`SGID`, y Unbound corre bajo el usuario sin privilegios `_unbound`.
-
-### Auditoría Empírica en Consola (`ss`, `ip`, `dig` y `drill`)
+### Auditoría y chequeo en Consola (`ss`, `ip`, `dig` y `drill`)
 
 Una vez activo el stack, validé el aislamiento de red, el rendimiento de caché y la validación criptográfica DNSSEC directamente desde la terminal SSH de `docker-prod`:
 
@@ -233,7 +224,7 @@ ip -c a | grep -A 3 "172.23.0.1"
 sudo ss -tulpn | grep -E ':53|:8080|:5335'
 ```
 
-La salida de `ss -tulpn` confirmó únicamente `:53` (TCP/UDP) y `:8080` (TCP) tomados por `docker-proxy`, sin rastro del puerto `:5335`, demostrando empíricamente que Unbound quedó aislado dentro de `dns_net`.
+La salida de `ss -tulpn` confirmó únicamente `:53` (TCP/UDP) y `:8080` (TCP) tomados por `docker-proxy`, sin rastro del puerto `:5335`, demostrando que Unbound quedó aislado dentro de `dns_net`.
 
 Luego corrí las pruebas de resolución recursiva, caché RAM y DNSSEC:
 
@@ -311,3 +302,14 @@ Como el DNS original carece de autenticación, un atacante en tránsito puede in
 * **Aislamiento con IPAM:** declarar una red bridge propia (`dns_net: 172.23.0.0/24`) en `docker-compose.yml` crea un switch virtual dedicado en el kernel (`br-<id>`), habilita IPs estáticas internas y permite dejar servicios de backend (Unbound) sin ningún puerto publicado en el host.
 * **Dependencias reales de arranque:** `depends_on` con `condition: service_healthy` acoplado a un `healthcheck` activo asegura que un contenedor dependiente (`pihole`) no inicie hasta que el backend (`unbound`) realmente responda consultas en su puerto interno.
 * **Separación de código y secretos:** en el flujo GitOps, el archivo `docker-compose.yml` versionado en GitHub describe el estado deseado con marcadores (`${PIHOLE_PASSWORD}`), mientras que Portainer inyecta los valores sensibles en memoria desde su almacenamiento local al ordenar el despliegue a `dockerd` mediante `/var/run/docker.sock`.
+
+---
+## Enfoque en Ciberseguridad
+## Hardening Aplicado y Validación Criptográfica
+
+### Controles Defensivos Implementados
+
+* **Mitigación de *DNS Rebinding* (`private-address`):** declarar los rangos RFC 1918 (`192.168.0.0/16`, `172.16.0.0/12`, `10.0.0.0/8`) y `169.254.0.0/16` en `unbound.conf` obliga a descartar cualquier respuesta pública externa que intente resolver hacia una IP privada de mi LAN.
+* **Cierre de *Open Resolver* y *Fingerprinting*:** las ACLs (`access-control`) aceptan únicamente consultas desde `127.0.0.1/32` (healthcheck), redes Docker (`172.16.0.0/12`) y mi LAN (`192.168.1.0/24`), rechazando el resto (`0.0.0.0/0 refuse`). Además, `hide-identity: yes` y `hide-version: yes` ocultan la versión del motor, y `harden-glue: yes` + `harden-dnssec-stripped: yes` bloquean inyecciones de registros fuera de zona y degradaciones de firmas.
+* **Montaje único en `:ro` preservando `var/root.key`:** monto únicamente `/opt/stacks/dns-stack/unbound/unbound.conf` como solo lectura (`:ro`) en vez de bloquear toda la carpeta `/opt/unbound/etc/unbound/`. Así el archivo de configuración queda inmutable desde adentro del contenedor, mientras la subcarpeta interna `var/` sigue escribible para que el script de inicio genere y actualice el `root.key`.
+* **Mínimo privilegio en el kernel:** descarté `privileged: true` y le asigné a Pi-hole únicamente `cap_add: [NET_ADMIN]` para operar los sockets DNS. En ambos contenedores activé `security_opt: [no-new-privileges:true]` para impedir escaladas mediante binarios `SUID`/`SGID`, y Unbound corre bajo el usuario sin privilegios `_unbound`.
